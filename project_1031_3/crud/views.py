@@ -8,8 +8,17 @@ from .models import Product
 from django.urls import reverse_lazy
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponse
-from .forms import ProductForm
+# from django.http import HttpResponse
+from django.forms import ModelForm
+
+class ProductForm(ModelForm):
+    """
+    フォーム定義
+    """
+    class Meta:
+        model = Product
+        # fields は models.py で定義している変数名
+        fields = ('name', 'price')
 
 # Create your views here.
 class TopView(TemplateView):
@@ -23,7 +32,7 @@ def product_list_view(request):
     # 全てのProductオブジェクトを取得
     queryset = Product.objects.all()
     # queryset（クエリセット）とは　データベースから取得したオブジェクトの集合を表す
-    paginate_by = 3
+    paginate_by = 4
 
     # ページ番号を取得
     page = request.GET.get('page', 1)
@@ -49,7 +58,7 @@ def product_list_view(request):
         'paginator': paginator,   # Paginator オブジェクト
     }
 
-    return render(request, 'product_list.html', context)
+    return render(request, 'crud/product_list.html', context)
 
 
 class ProductCreateView(CreateView):
@@ -102,7 +111,7 @@ def product_delete_view(request, pk):
     if request.method == "POST":
         # POST リクエストでオブジェクトを削除
         product.delete()
-        return redirect(reverse('list'))  # 削除後にリストページへリダイレクト
+        return redirect(redirect('list'))  # 削除後にリストページへリダイレクト
 
     # GET リクエストで確認ページを表示
     return render(request, 'product_confirm_delete.html', {'product': product})
